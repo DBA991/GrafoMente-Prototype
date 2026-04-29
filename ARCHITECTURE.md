@@ -124,7 +124,7 @@ The table below maps each component of the complete architecture against its sta
 | Progressive fetch — episodic shortcuts | Use_count bonus on traversal | ✅ Implemented |
 | Structured RAG serialization | Ordered by prototypicality and hierarchy | ✅ Implemented |
 | Linguistic layer — LLM connector | Local (Ollama) + remote (OpenAI-compatible) | ✅ Implemented |
-| Sandboxed verification + correction loop | Pattern blocking + subprocess + retry with error context | ✅ Implemented — Python only; other languages return code without execution |
+| Sandboxed verification + correction loop | Pattern blocking + subprocess + retry with error context | ⚠️ Implemented — Python only; other languages return code without execution |
 | Graph construction from GitHub | REST API, two-phase import with preview | ✅ Implemented — scanning tool functional |
 | Graph construction — source coverage | Code + docs + type defs + changelogs + API references | ❌ Source code only; builder needs redesign for heterogeneous sources |
 | Symbol selection criteria (prompt → instances) | Better criteria, AI-assisted proposal + human confirmation | ⚠️ Fuzzy-prefix regex as deliberate interim approximation |
