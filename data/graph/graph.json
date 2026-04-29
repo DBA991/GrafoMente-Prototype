@@ -1,0 +1,584 @@
+{
+  "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae": {
+    "stable": {
+      "uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+      "node_id": "express.middleware",
+      "label": "middleware",
+      "node_type": "function",
+      "signature": "(req: Request, res: Response, next: NextFunction) => void",
+      "docstring": "Una funzione middleware ha accesso all'oggetto request (req), all'oggetto response (res) e alla funzione next nel ciclo request-response.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "middleware"
+      ],
+      "semantic_field": "middleware",
+      "intersections": [
+        "request_handling",
+        "routing"
+      ],
+      "relations": [
+        {
+          "target_uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+          "type": "receives"
+        },
+        {
+          "target_uuid": "6a0efe5f-f318-486e-bb65-2658dfa1f1f2",
+          "type": "receives"
+        },
+        {
+          "target_uuid": "777bd1a4-7b78-4ead-9299-08b388630564",
+          "type": "calls"
+        },
+        {
+          "target_uuid": "e3c78ffb-4c31-448e-8f37-e7bf6c2600f7",
+          "type": "part_of"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "middleware",
+        "handler",
+        "filter"
+      ],
+      "keywords": [
+        "middleware",
+        "request",
+        "response",
+        "next",
+        "express"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+      "links": []
+    }
+  },
+  "e3c78ffb-4c31-448e-8f37-e7bf6c2600f7": {
+    "stable": {
+      "uuid": "e3c78ffb-4c31-448e-8f37-e7bf6c2600f7",
+      "node_id": "express.app",
+      "label": "app",
+      "node_type": "object",
+      "signature": "const app = express()",
+      "docstring": "L'oggetto app Express. Espone metodi per il routing HTTP, la configurazione del middleware e il rendering delle view.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express"
+      ],
+      "semantic_field": "http_server",
+      "intersections": [
+        "middleware",
+        "routing"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "uses"
+        },
+        {
+          "target_uuid": "af82c89b-a5ee-4b86-9c9d-faf5fb9268ac",
+          "type": "uses"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "app",
+        "express",
+        "application",
+        "server"
+      ],
+      "keywords": [
+        "express",
+        "app",
+        "server",
+        "http",
+        "application"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "e3c78ffb-4c31-448e-8f37-e7bf6c2600f7",
+      "links": []
+    }
+  },
+  "af82c89b-a5ee-4b86-9c9d-faf5fb9268ac": {
+    "stable": {
+      "uuid": "af82c89b-a5ee-4b86-9c9d-faf5fb9268ac",
+      "node_id": "express.router",
+      "label": "Router",
+      "node_type": "class",
+      "signature": "express.Router(options?: RouterOptions)",
+      "docstring": "Crea un nuovo oggetto router. \u00c8 un mini-app isolata, capace di eseguire middleware e routing.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "Router"
+      ],
+      "semantic_field": "routing",
+      "intersections": [
+        "middleware"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "uses"
+        },
+        {
+          "target_uuid": "e3c78ffb-4c31-448e-8f37-e7bf6c2600f7",
+          "type": "part_of"
+        },
+        {
+          "target_uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+          "type": "receives"
+        },
+        {
+          "target_uuid": "6a0efe5f-f318-486e-bb65-2658dfa1f1f2",
+          "type": "receives"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "Router",
+        "router",
+        "route"
+      ],
+      "keywords": [
+        "router",
+        "routing",
+        "express",
+        "route",
+        "subroute"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "af82c89b-a5ee-4b86-9c9d-faf5fb9268ac",
+      "links": []
+    }
+  },
+  "e7e0950d-bfee-458f-b319-bd4109ab2549": {
+    "stable": {
+      "uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+      "node_id": "express.request",
+      "label": "Request",
+      "node_type": "object",
+      "signature": "req: express.Request",
+      "docstring": "L'oggetto request di Express. Contiene propriet\u00e0 per la richiesta HTTP: req.params, req.query, req.body, req.headers, req.method, req.path.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "Request"
+      ],
+      "semantic_field": "request_handling",
+      "intersections": [
+        "middleware"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "passed_to"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "req",
+        "request",
+        "Request"
+      ],
+      "keywords": [
+        "request",
+        "req",
+        "params",
+        "query",
+        "body",
+        "headers",
+        "method",
+        "path"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+      "links": []
+    }
+  },
+  "6a0efe5f-f318-486e-bb65-2658dfa1f1f2": {
+    "stable": {
+      "uuid": "6a0efe5f-f318-486e-bb65-2658dfa1f1f2",
+      "node_id": "express.response",
+      "label": "Response",
+      "node_type": "object",
+      "signature": "res: express.Response",
+      "docstring": "L'oggetto response di Express. Metodi principali: res.send(), res.json(), res.status(), res.redirect(), res.render().",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "Response"
+      ],
+      "semantic_field": "request_handling",
+      "intersections": [
+        "middleware"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "passed_to"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "res",
+        "response",
+        "Response"
+      ],
+      "keywords": [
+        "response",
+        "res",
+        "send",
+        "json",
+        "status",
+        "redirect"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "6a0efe5f-f318-486e-bb65-2658dfa1f1f2",
+      "links": []
+    }
+  },
+  "777bd1a4-7b78-4ead-9299-08b388630564": {
+    "stable": {
+      "uuid": "777bd1a4-7b78-4ead-9299-08b388630564",
+      "node_id": "express.next",
+      "label": "NextFunction",
+      "node_type": "function",
+      "signature": "next: NextFunction = (err?: any) => void",
+      "docstring": "Passa il controllo al prossimo middleware nella pila. Se chiamato con un argomento, passa il controllo al gestore degli errori.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "NextFunction"
+      ],
+      "semantic_field": "middleware",
+      "intersections": [
+        "error_handling"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "part_of"
+        },
+        {
+          "target_uuid": "b19a366d-ac52-466e-8125-93c4e7b4c5fc",
+          "type": "triggers"
+        }
+      ],
+      "prototypicality": 0.9,
+      "synonyms": [
+        "next",
+        "NextFunction",
+        "nextFunction"
+      ],
+      "keywords": [
+        "next",
+        "chain",
+        "middleware",
+        "error",
+        "pass"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "777bd1a4-7b78-4ead-9299-08b388630564",
+      "links": []
+    }
+  },
+  "40c52f97-fc55-476c-81cd-55b87688a417": {
+    "stable": {
+      "uuid": "40c52f97-fc55-476c-81cd-55b87688a417",
+      "node_id": "js.date",
+      "label": "Date",
+      "node_type": "class",
+      "signature": "new Date() | Date.now() | new Date(value)",
+      "docstring": "Oggetto built-in JavaScript per date e ore. Date.now() restituisce il timestamp Unix in ms. toISOString() restituisce data in formato ISO 8601.",
+      "source_ref": "developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+      "hierarchy_path": [
+        "JavaScript",
+        "Global",
+        "Date"
+      ],
+      "semantic_field": "datetime",
+      "intersections": [
+        "logging"
+      ],
+      "relations": [
+        {
+          "target_uuid": "e3a1c49d-14cd-449d-b4df-8256d2686e20",
+          "type": "related"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "Date",
+        "date",
+        "datetime",
+        "timestamp"
+      ],
+      "keywords": [
+        "date",
+        "time",
+        "timestamp",
+        "now",
+        "iso",
+        "datetime",
+        "log"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "40c52f97-fc55-476c-81cd-55b87688a417",
+      "links": []
+    }
+  },
+  "e3a1c49d-14cd-449d-b4df-8256d2686e20": {
+    "stable": {
+      "uuid": "e3a1c49d-14cd-449d-b4df-8256d2686e20",
+      "node_id": "js.console",
+      "label": "console",
+      "node_type": "object",
+      "signature": "console.log(...args) | console.error(...args) | console.warn(...args)",
+      "docstring": "Oggetto globale per output su standard output/error. console.log per output standard, console.error per errori.",
+      "source_ref": "developer.mozilla.org/en-US/docs/Web/API/console",
+      "hierarchy_path": [
+        "JavaScript",
+        "Global",
+        "console"
+      ],
+      "semantic_field": "logging",
+      "intersections": [
+        "error_handling",
+        "datetime"
+      ],
+      "relations": [
+        {
+          "target_uuid": "40c52f97-fc55-476c-81cd-55b87688a417",
+          "type": "related"
+        },
+        {
+          "target_uuid": "b19a366d-ac52-466e-8125-93c4e7b4c5fc",
+          "type": "used_in"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "console",
+        "log",
+        "logger"
+      ],
+      "keywords": [
+        "console",
+        "log",
+        "error",
+        "warn",
+        "debug",
+        "output",
+        "print"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "e3a1c49d-14cd-449d-b4df-8256d2686e20",
+      "links": []
+    }
+  },
+  "4ec6cc95-8c40-45ab-9f56-6e6fe6db0663": {
+    "stable": {
+      "uuid": "4ec6cc95-8c40-45ab-9f56-6e6fe6db0663",
+      "node_id": "node.fs",
+      "label": "fs",
+      "node_type": "object",
+      "signature": "import fs from 'fs' | require('fs')",
+      "docstring": "Modulo Node.js per l'accesso al filesystem. Metodi principali: fs.readFile, fs.writeFile, fs.readFileSync, fs.writeFileSync.",
+      "source_ref": "nodejs.org/api/fs.html",
+      "hierarchy_path": [
+        "Node.js",
+        "fs"
+      ],
+      "semantic_field": "utilities",
+      "intersections": [
+        "logging",
+        "configuration"
+      ],
+      "relations": [
+        {
+          "target_uuid": "607dd30c-1550-4a94-94ec-19f5e9704724",
+          "type": "related"
+        }
+      ],
+      "prototypicality": 0.9,
+      "synonyms": [
+        "fs",
+        "filesystem",
+        "file"
+      ],
+      "keywords": [
+        "file",
+        "fs",
+        "read",
+        "write",
+        "path",
+        "stream",
+        "node"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "4ec6cc95-8c40-45ab-9f56-6e6fe6db0663",
+      "links": []
+    }
+  },
+  "607dd30c-1550-4a94-94ec-19f5e9704724": {
+    "stable": {
+      "uuid": "607dd30c-1550-4a94-94ec-19f5e9704724",
+      "node_id": "node.path",
+      "label": "path",
+      "node_type": "object",
+      "signature": "import path from 'path' | require('path')",
+      "docstring": "Modulo Node.js per la manipolazione dei percorsi file. path.join(), path.resolve(), path.dirname(), path.basename(), path.extname().",
+      "source_ref": "nodejs.org/api/path.html",
+      "hierarchy_path": [
+        "Node.js",
+        "path"
+      ],
+      "semantic_field": "utilities",
+      "intersections": [
+        "configuration"
+      ],
+      "relations": [
+        {
+          "target_uuid": "4ec6cc95-8c40-45ab-9f56-6e6fe6db0663",
+          "type": "related"
+        }
+      ],
+      "prototypicality": 0.9,
+      "synonyms": [
+        "path",
+        "filepath",
+        "directory"
+      ],
+      "keywords": [
+        "path",
+        "join",
+        "resolve",
+        "dirname",
+        "basename",
+        "extname",
+        "node"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "607dd30c-1550-4a94-94ec-19f5e9704724",
+      "links": []
+    }
+  },
+  "b19a366d-ac52-466e-8125-93c4e7b4c5fc": {
+    "stable": {
+      "uuid": "b19a366d-ac52-466e-8125-93c4e7b4c5fc",
+      "node_id": "express.error_handler",
+      "label": "errorHandler",
+      "node_type": "function",
+      "signature": "(err: Error, req: Request, res: Response, next: NextFunction) => void",
+      "docstring": "Middleware di gestione degli errori Express. Riceve 4 argomenti (err, req, res, next). Express lo riconosce automaticamente come error handler.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "middleware",
+        "error"
+      ],
+      "semantic_field": "error_handling",
+      "intersections": [
+        "middleware",
+        "request_handling"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "extends"
+        },
+        {
+          "target_uuid": "777bd1a4-7b78-4ead-9299-08b388630564",
+          "type": "receives"
+        },
+        {
+          "target_uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+          "type": "receives"
+        },
+        {
+          "target_uuid": "6a0efe5f-f318-486e-bb65-2658dfa1f1f2",
+          "type": "receives"
+        }
+      ],
+      "prototypicality": 1.0,
+      "synonyms": [
+        "errorHandler",
+        "error_handler",
+        "onError",
+        "handleError"
+      ],
+      "keywords": [
+        "error",
+        "handler",
+        "middleware",
+        "exception",
+        "status",
+        "500"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "b19a366d-ac52-466e-8125-93c4e7b4c5fc",
+      "links": []
+    }
+  },
+  "5cdb9950-28c8-4c8b-98f6-264f56b82364": {
+    "stable": {
+      "uuid": "5cdb9950-28c8-4c8b-98f6-264f56b82364",
+      "node_id": "express.json_middleware",
+      "label": "express.json",
+      "node_type": "function",
+      "signature": "express.json(options?: OptionsJson)",
+      "docstring": "Middleware built-in di Express per il parsing del body JSON. Popola req.body con l'oggetto JavaScript parsato.",
+      "source_ref": "github.com/expressjs/express@4.18.2",
+      "hierarchy_path": [
+        "express",
+        "middleware",
+        "body"
+      ],
+      "semantic_field": "middleware",
+      "intersections": [
+        "request_handling"
+      ],
+      "relations": [
+        {
+          "target_uuid": "ccef2cf0-50cf-462e-9d3c-3335dd6bb7ae",
+          "type": "is_a"
+        },
+        {
+          "target_uuid": "e7e0950d-bfee-458f-b319-bd4109ab2549",
+          "type": "modifies"
+        }
+      ],
+      "prototypicality": 0.95,
+      "synonyms": [
+        "express.json",
+        "json",
+        "bodyParser",
+        "body_parser"
+      ],
+      "keywords": [
+        "json",
+        "body",
+        "parser",
+        "middleware",
+        "request",
+        "express"
+      ]
+    },
+    "episodic": {
+      "node_uuid": "5cdb9950-28c8-4c8b-98f6-264f56b82364",
+      "links": []
+    }
+  }
+}

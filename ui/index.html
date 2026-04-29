@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrafoMente</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #151821;
+    --surface2:  #1c2030;
+    --border:    #242840;
+    --accent:    #4f7cff;
+    --accent2:   #7c5cfc;
+    --green:     #3ecf8e;
+    --amber:     #f5a623;
+    --red:       #ff4d6a;
+    --text:      #e2e6f0;
+    --text2:     #8892a4;
+    --text3:     #4a5568;
+    --mono:      'JetBrains Mono', 'Fira Code', monospace;
+    --sans:      'Inter', system-ui, sans-serif;
+    --radius:    8px;
+    --radius-lg: 14px;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; }
+
+  /* ── Layout ── */
+  .app { display: grid; grid-template-rows: 52px 1fr; height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 20px;
+  }
+  header .logo { font-family: var(--mono); font-size: 16px; font-weight: 500; color: var(--accent); letter-spacing: -.5px; }
+  header .tagline { color: var(--text2); font-size: 12px; }
+  header .status-pill {
+    margin-left: auto; display: flex; align-items: center; gap: 7px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 20px; font-size: 12px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+  .dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot.err { background: var(--red); }
+
+  .main { display: grid; grid-template-columns: 260px 1fr; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto; padding: 12px 0;
+  }
+  .sidebar-section { padding: 0 12px 8px; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; padding: 0 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: var(--radius);
+    cursor: pointer; color: var(--text2); font-size: 13px;
+    transition: background .15s, color .15s;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(79,124,255,.12); color: var(--accent); }
+  .nav-item .icon { width: 16px; text-align: center; font-size: 14px; }
+
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+
+  /* ── Graph node list in sidebar ── */
+  .node-list { padding: 0 12px; }
+  .node-chip {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 8px; border-radius: 6px;
+    font-family: var(--mono); font-size: 11px; color: var(--text2);
+    cursor: pointer; transition: background .12s;
+  }
+  .node-chip:hover { background: var(--surface2); color: var(--text); }
+  .node-chip .field-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Content area ── */
+  .content { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── Panel ── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .panel-title { font-size: 13px; font-weight: 600; }
+  .panel-subtitle { font-size: 11px; color: var(--text2); margin-left: auto; }
+  .panel-body { padding: 16px 18px; }
+
+  /* ── Inputs ── */
+  textarea, input[type=text], input[type=url], input[type=number], select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: var(--radius);
+    padding: 9px 12px; font-family: var(--sans); font-size: 13px;
+    outline: none; transition: border-color .15s;
+  }
+  textarea:focus, input:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+  select { cursor: pointer; }
+
+  label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+
+  .form-row { display: grid; gap: 12px; margin-bottom: 12px; }
+  .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 16px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; outline: none; transition: opacity .15s, transform .1s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { opacity: .88; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-green { background: var(--green); color: #0d1a10; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+  /* ── Instance chips ── */
+  .instance-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .instance-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px;
+    font-family: var(--mono); font-size: 11px; color: var(--text);
+  }
+  .instance-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,.08); }
+  .instance-chip .remove { cursor: pointer; color: var(--text3); font-size: 13px; line-height: 1; }
+  .instance-chip .remove:hover { color: var(--red); }
+
+  /* ── RAG output ── */
+  .rag-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px;
+    font-family: var(--mono); font-size: 11px; color: var(--text2);
+    white-space: pre-wrap; overflow-x: auto; max-height: 300px; overflow-y: auto;
+    line-height: 1.7;
+  }
+
+  /* ── Code output ── */
+  .code-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+    font-family: var(--mono); font-size: 12px; color: var(--green);
+    white-space: pre-wrap; overflow-x: auto; max-height: 400px; overflow-y: auto;
+    line-height: 1.8;
+  }
+
+  /* ── Stats row ── */
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 14px; }
+  .stat-val { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text2); }
+
+  /* ── Alert ── */
+  .alert { border-radius: var(--radius); padding: 10px 14px; font-size: 12px; margin-bottom: 10px; }
+  .alert-info { background: rgba(79,124,255,.08); border: 1px solid rgba(79,124,255,.25); color: #8aabff; }
+  .alert-success { background: rgba(62,207,142,.08); border: 1px solid rgba(62,207,142,.25); color: var(--green); }
+  .alert-warn { background: rgba(245,166,35,.08); border: 1px solid rgba(245,166,35,.25); color: var(--amber); }
+  .alert-error { background: rgba(255,77,106,.08); border: 1px solid rgba(255,77,106,.25); color: var(--red); }
+
+  /* ── Badge ── */
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; font-family: var(--mono); }
+  .badge-blue { background: rgba(79,124,255,.15); color: var(--accent); }
+  .badge-green { background: rgba(62,207,142,.15); color: var(--green); }
+  .badge-amber { background: rgba(245,166,35,.15); color: var(--amber); }
+  .badge-gray { background: var(--surface2); color: var(--text2); }
+
+  /* ── Table ── */
+  .table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .table th { text-align: left; padding: 6px 10px; color: var(--text3); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .table td { padding: 7px 10px; border-bottom: 1px solid rgba(36,40,64,.5); }
+  .table tr:hover td { background: var(--surface2); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 2px; padding: 0 18px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab { padding: 11px 14px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; transition: color .15s; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Section pages ── */
+  .page { display: none; }
+  .page.active { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── Loading spinner ── */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">GrafoMente</div>
+    <div class="tagline">RAG strutturato da grafo concettuale</div>
+    <div class="status-pill">
+      <div class="dot" id="conn-dot"></div>
+      <span id="conn-label">Connessione...</span>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Navigazione</div>
+        <div class="nav-item active" onclick="showPage('query')" id="nav-query">
+          <span class="icon">⌨</span> Query & Genera
+        </div>
+        <div class="nav-item" onclick="showPage('github')" id="nav-github">
+          <span class="icon">⬇</span> Importa da GitHub
+        </div>
+        <div class="nav-item" onclick="showPage('graph')" id="nav-graph">
+          <span class="icon">◈</span> Grafo
+        </div>
+        <div class="nav-item" onclick="showPage('config')" id="nav-config">
+          <span class="icon">⚙</span> Configurazione
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Nodi del grafo</div>
+      </div>
+      <div class="node-list" id="sidebar-nodes">
+        <div style="color:var(--text3);font-size:11px;padding:4px 8px">Caricamento...</div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- ── PAGE: Query ── -->
+      <div class="page active" id="page-query">
+
+        <!-- Step 1: Query -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="badge badge-blue">1</span>
+            <span class="panel-title">Query</span>
+            <span class="panel-subtitle">Descrivi cosa vuoi generare</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-row">
+              <div>
+                <label>Richiesta in linguaggio naturale</label>
+                <textarea id="query-input" rows="3" placeholder="Es: Scrivi un middleware Express che logga metodo, URL e timestamp di ogni richiesta HTTP"></textarea>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="translateQuery()">
+                <span>→</span> Traduci in istanze
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Istanze (feedback umano) -->
+        <div class="panel" id="panel-instances" style="display:none">
+          <div class="panel-header">
+            <span class="badge badge-blue">2</span>
+            <span class="panel-title">Istanze attivate</span>
+            <span class="panel-subtitle">Conferma, aggiungi o rimuovi prima del fetch</span>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-info">
+              Il sistema ha identificato le seguenti istanze nel grafo. Rimuovi quelle non pertinenti o aggiungine manualmente.
+            </div>
+            <div class="instance-list" id="instance-list"></div>
+
+            <div class="form-row cols-2" style="margin-top:12px">
+              <div>
+                <label>Aggiungi istanza manualmente (node_id — il sistema risolverà l'UUID)</label>
+                <input type="text" id="manual-instance" placeholder="es. express.middleware">
+              </div>
+              <div style="display:flex;align-items:flex-end">
+                <button class="btn btn-secondary" onclick="addManualInstance()">+ Aggiungi</button>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="runFetch()">
+                <span>◈</span> Avvia fetch progressivo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Fetch risultato -->
+        <div class="panel" id="panel-fetch" style="display:none">
+          <div class="panel-header">
+            <span class="badge badge-blue">3</span>
+            <span class="panel-title">Fetch progressivo</span>
+            <span class="panel-subtitle">Pool raccolto e RAG strutturato</span>
+          </div>
+          <div class="panel-body">
+            <div class="stats" id="fetch-stats"></div>
+
+            <div class="tabs">
+              <div class="tab active" onclick="switchTab('rag')">RAG strutturato</div>
+              <div class="tab" onclick="switchTab('pool')">Pool nodi</div>
+              <div class="tab" onclick="switchTab('abandoned')">Percorsi abbandonati</div>
+            </div>
+
+            <div style="margin-top:12px">
+              <div id="tab-rag"><div class="rag-block" id="rag-output"></div></div>
+              <div id="tab-pool" style="display:none"><div class="rag-block" id="pool-output"></div></div>
+              <div id="tab-abandoned" style="display:none"><div class="rag-block" id="abandoned-output"></div></div>
+            </div>
+
+            <div class="btn-row" style="margin-top:16px">
+              <button class="btn btn-green" onclick="generateCode()">
+                <span>✦</span> Genera codice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Output LLM + Sandbox -->
+        <div class="panel" id="panel-output" style="display:none">
+          <div class="panel-header">
+            <span class="badge badge-green">4</span>
+            <span class="panel-title">Codice generato</span>
+            <span id="sandbox-badge" class="panel-subtitle"></span>
+          </div>
+          <div class="panel-body">
+            <div id="sandbox-alert"></div>
+            <div class="code-block" id="code-output"></div>
+            <div class="btn-row">
+              <button class="btn btn-secondary btn-sm" onclick="copyCode()">⊕ Copia</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-query -->
+
+
+      <!-- ── PAGE: GitHub Import ── -->
+      <div class="page" id="page-github">
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">⬇ Importa da repository GitHub</span>
+            <span class="panel-subtitle">API REST · nessun clone locale necessario</span>
+          </div>
+          <div class="panel-body">
+            <div class="alert alert-info" style="margin-bottom:14px">
+              Il sistema recupera l'albero del repository via API GitHub, analizza i file sorgente con regex,
+              categorizza le entità per percorso e contenuto, e produce nodi compatibili con il grafo.
+              L'import è in due fasi: <strong>anteprima</strong> → <strong>conferma</strong>.
+            </div>
+
+            <div class="form-row cols-2">
+              <div>
+                <label>Proprietario (owner)</label>
+                <input type="text" id="gh-owner" placeholder="es. expressjs">
+              </div>
+              <div>
+                <label>Repository</label>
+                <input type="text" id="gh-repo" placeholder="es. express">
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div>
+                <label>Branch / Tag (lascia vuoto per default)</label>
+                <input type="text" id="gh-ref" placeholder="es. 4.x · main · v2.0.0">
+              </div>
+              <div>
+                <label>Filtro percorso (opzionale)</label>
+                <input type="text" id="gh-path" placeholder="es. lib/ · src/ · middleware/">
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div>
+                <label>Token GitHub (opzionale, consigliato)</label>
+                <input type="text" id="gh-token" placeholder="ghp_...  (5000 req/h vs 60)">
+              </div>
+              <div>
+                <label>Max file da analizzare</label>
+                <input type="number" id="gh-maxfiles" value="50" min="5" max="200">
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="runGithubBuild()">
+                <span>⬇</span> Analizza repository
+              </button>
+              <button class="btn btn-secondary" onclick="checkStaging()">
+                Controlla staging
+              </button>
+            </div>
+            <div id="gh-alert" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <!-- Anteprima nodi -->
+        <div class="panel" id="panel-gh-preview" style="display:none">
+          <div class="panel-header">
+            <span class="panel-title">Anteprima nodi estratti</span>
+            <span class="panel-subtitle" id="gh-preview-subtitle"></span>
+          </div>
+          <div class="panel-body">
+            <div class="stats" id="gh-stats"></div>
+
+            <div id="gh-errors-block" style="display:none;margin-bottom:10px">
+              <div class="alert alert-warn" id="gh-errors-text"></div>
+            </div>
+
+            <table class="table" id="gh-preview-table">
+              <thead><tr>
+                <th>Label</th><th>Tipo</th><th>Campo</th><th>Proto.</th><th>Percorso</th>
+              </tr></thead>
+              <tbody id="gh-preview-tbody"></tbody>
+            </table>
+
+            <div class="btn-row" style="margin-top:16px">
+              <button class="btn btn-green" onclick="commitStaged()">
+                ✓ Importa nel grafo
+              </button>
+              <button class="btn btn-secondary" onclick="clearStaged()">
+                ✕ Scarta
+              </button>
+            </div>
+            <div id="gh-commit-alert" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+      </div><!-- /page-github -->
+
+
+      <!-- ── PAGE: Graph ── -->
+      <div class="page" id="page-graph">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◈ Grafo concettuale</span>
+            <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="pruneEpisodic()">✂ Pota layer episodico</button>
+          </div>
+          <div class="panel-body">
+            <div class="stats" id="graph-stats"></div>
+            <table class="table" id="graph-table">
+              <thead><tr>
+                <th>Label</th><th>Tipo</th><th>Campo</th>
+                <th>Proto.</th><th>Link episodici</th><th>Sorgente</th>
+              </tr></thead>
+              <tbody id="graph-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Node detail -->
+        <div class="panel" id="panel-node-detail" style="display:none">
+          <div class="panel-header">
+            <span class="panel-title" id="node-detail-title">Dettaglio nodo</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-row cols-2">
+              <div>
+                <label>Layer stabile</label>
+                <div class="rag-block" id="node-stable-out" style="max-height:200px"></div>
+              </div>
+              <div>
+                <label>Layer episodico</label>
+                <div class="rag-block" id="node-episodic-out" style="max-height:200px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-graph -->
+
+
+      <!-- ── PAGE: Config ── -->
+      <div class="page" id="page-config">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">⚙ Configurazione LLM</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-row cols-2">
+              <div>
+                <label>Modalità</label>
+                <select id="cfg-mode">
+                  <option value="local">Locale (Ollama)</option>
+                  <option value="remote">Remoto (API OpenAI-compatible)</option>
+                </select>
+              </div>
+              <div>
+                <label>Modello</label>
+                <input type="text" id="cfg-model" placeholder="es. deepseek-coder">
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>URL endpoint</label>
+                <input type="url" id="cfg-url" placeholder="http://localhost:11434">
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>API Key (solo per modalità remota)</label>
+                <input type="text" id="cfg-key" placeholder="sk-...">
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div>
+                <label>Max tokens</label>
+                <input type="number" id="cfg-tokens" value="2048" min="256" max="8192">
+              </div>
+              <div>
+                <label>Temperature</label>
+                <input type="number" id="cfg-temp" value="0.2" min="0" max="2" step="0.1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◈ Fetch & Sandbox</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-row cols-3">
+              <div>
+                <label>Profondità max fetch</label>
+                <input type="number" id="cfg-depth" value="4" min="1" max="10">
+              </div>
+              <div>
+                <label>Max nodi RAG</label>
+                <input type="number" id="cfg-ragnodes" value="15" min="5" max="50">
+              </div>
+              <div>
+                <label>Sandbox max tentativi</label>
+                <input type="number" id="cfg-attempts" value="3" min="1" max="5">
+              </div>
+            </div>
+            <div class="form-row cols-2">
+              <div>
+                <label>Linguaggio sandbox</label>
+                <select id="cfg-sandlang">
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript (Node.js)</option>
+                </select>
+              </div>
+              <div>
+                <label>Timeout sandbox (sec)</label>
+                <input type="number" id="cfg-timeout" value="10" min="3" max="60">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="saveConfig()">✓ Salva configurazione</button>
+              <button class="btn btn-secondary" onclick="loadConfig()">↺ Ricarica</button>
+            </div>
+            <div id="config-alert" style="margin-top:10px"></div>
+          </div>
+        </div>
+      </div><!-- /page-config -->
+
+    </main>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+
+// ── Utility ──────────────────────────────────────────────────────────────────
+
+async function api(method, path, body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({ detail: r.statusText }));
+    throw new Error(err.detail || r.statusText);
+  }
+  return r.json();
+}
+
+function el(id) { return document.getElementById(id); }
+
+function showAlert(containerId, msg, type = 'info') {
+  el(containerId).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+
+function fieldColor(field) {
+  const map = {
+    http_server: '#4f7cff', routing: '#7c5cfc', middleware: '#3ecf8e',
+    logging: '#f5a623', request_handling: '#ff4d6a',
+    configuration: '#62c5e8', runtime: '#a78bfa', datetime: '#fb923c'
+  };
+  return map[field] || '#6b7280';
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let currentInstances = [];   // [{uuid, id, label, field, signature}]  uuid=chiave macchina, id=node_id leggibile
+let currentRagText = '';
+let currentQuery = '';
+let currentFetchResult = null;
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el('page-' + name).classList.add('active');
+  el('nav-' + name).classList.add('active');
+  if (name === 'graph') loadGraphPage();
+  if (name === 'config') loadConfig();
+  if (name === 'github') checkStaging();
+}
+
+// ── Status check ─────────────────────────────────────────────────────────────
+
+async function checkStatus() {
+  try {
+    const s = await api('GET', '/status');
+    el('conn-dot').className = 'dot ' + (s.llm_connected ? 'ok' : 'err');
+    el('conn-label').textContent = s.llm_connected
+      ? `${s.llm_model} · ${s.graph_nodes} nodi`
+      : `${s.llm_model} · non connesso`;
+    loadSidebarNodes();
+  } catch {
+    el('conn-dot').className = 'dot err';
+    el('conn-label').textContent = 'Server non raggiungibile';
+  }
+}
+
+// ── Sidebar nodes ─────────────────────────────────────────────────────────────
+
+async function loadSidebarNodes() {
+  try {
+    const data = await api('GET', '/graph/nodes?limit=30');
+    const container = el('sidebar-nodes');
+    container.innerHTML = data.nodes.map(n => `
+      <div class="node-chip" onclick="showNodeDetail('${n.id}');showPage('graph')">
+        <div class="field-dot" style="background:${fieldColor(n.field)}"></div>
+        <span>${n.label}</span>
+      </div>
+    `).join('');
+  } catch { /* silenzioso */ }
+}
+
+// ── Tab switcher ──────────────────────────────────────────────────────────────
+
+function switchTab(name) {
+  ['rag', 'pool', 'abandoned'].forEach(t => {
+    el('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((tab, i) => {
+    tab.classList.toggle('active', ['rag', 'pool', 'abandoned'][i] === name);
+  });
+}
+
+// ── Step 1: Translate ─────────────────────────────────────────────────────────
+
+async function translateQuery() {
+  currentQuery = el('query-input').value.trim();
+  if (!currentQuery) return;
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Traduzione...';
+
+  try {
+    const data = await api('POST', '/query/translate', { query: currentQuery });
+    currentInstances = data.instances;
+    renderInstances();
+    el('panel-instances').style.display = 'block';
+    el('panel-fetch').style.display = 'none';
+    el('panel-output').style.display = 'none';
+    el('panel-instances').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    alert('Errore traduzione: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>→</span> Traduci in istanze';
+  }
+}
+
+function renderInstances() {
+  el('instance-list').innerHTML = currentInstances.map((inst, i) => `
+    <div class="instance-chip active" id="chip-${i}">
+      <div class="field-dot" style="background:${fieldColor(inst.field)}"></div>
+      <span style="font-family:var(--mono)">${inst.label}</span>
+      <span style="color:var(--text3);font-size:10px">${inst.field}</span>
+      <span class="remove" onclick="removeInstance(${i})">✕</span>
+    </div>
+  `).join('') || '<span style="color:var(--text3);font-size:12px">Nessuna istanza trovata. Aggiungile manualmente.</span>';
+}
+
+function removeInstance(i) {
+  currentInstances.splice(i, 1);
+  renderInstances();
+}
+
+async function addManualInstance() {
+  const nid = el('manual-instance').value.trim();
+  if (!nid) return;
+  if (currentInstances.find(x => x.id === nid)) {
+    el('manual-instance').value = '';
+    return;
+  }
+  // Risolve node_id → uuid interrogando il server
+  try {
+    const node = await api('GET', '/graph/node/' + encodeURIComponent(nid));
+    currentInstances.push({
+      uuid: node.stable.uuid,
+      id: node.stable.id,
+      label: node.stable.label,
+      field: node.stable.field,
+      signature: node.stable.signature || ''
+    });
+  } catch (e) {
+    // node_id non trovato: aggiunge come stub con uuid vuoto (verrà ignorato dal server)
+    currentInstances.push({ uuid: '', id: nid, label: nid, field: 'manual', signature: '' });
+  }
+  renderInstances();
+  el('manual-instance').value = '';
+}
+
+// ── Step 2: Fetch ─────────────────────────────────────────────────────────────
+
+async function runFetch() {
+  if (!currentInstances.length) { alert('Aggiungi almeno una istanza.'); return; }
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Navigazione grafo...';
+
+  try {
+    const ids = currentInstances.map(x => x.uuid).filter(Boolean);
+    const data = await api('POST', '/query/fetch', { query: currentQuery, instance_uuids: ids });
+    currentFetchResult = data;
+    currentRagText = data.rag_text;
+
+    el('fetch-stats').innerHTML = `
+      <div class="stat"><div class="stat-val">${data.pool_size}</div><div class="stat-label">Nodi nel pool</div></div>
+      <div class="stat"><div class="stat-val">${data.abandoned_paths}</div><div class="stat-label">Percorsi abbandonati</div></div>
+      <div class="stat"><div class="stat-val">${data.new_episodic_links}</div><div class="stat-label">Nuovi link episodici</div></div>
+    `;
+
+    el('rag-output').textContent = data.rag_text;
+    el('pool-output').textContent = JSON.stringify(data.pool, null, 2);
+    el('abandoned-output').textContent = data.abandoned_detail.join('\n') || '(nessuno)';
+
+    el('panel-fetch').style.display = 'block';
+    el('panel-output').style.display = 'none';
+    switchTab('rag');
+    el('panel-fetch').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    alert('Errore fetch: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>◈</span> Avvia fetch progressivo';
+  }
+}
+
+// ── Step 3: Generate ──────────────────────────────────────────────────────────
+
+async function generateCode() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generazione in corso...';
+
+  try {
+    const ids = currentInstances.map(x => x.uuid).filter(Boolean);
+    const data = await api('POST', '/query/generate', {
+      query: currentQuery,
+      instance_uuids: ids,
+      run_sandbox: true,
+      sandbox_language: 'python'
+    });
+
+    let code = data.llm_output;
+    let alertHtml = '';
+    let badgeHtml = '';
+
+    if (data.sandbox) {
+      const sb = data.sandbox;
+      code = sb.final_code || code;
+      if (sb.success) {
+        badgeHtml = `<span class="badge badge-green">✓ Sandbox OK · ${sb.attempts} tentativo/i</span>`;
+        alertHtml = `<div class="alert alert-success">Codice verificato in sandbox dopo ${sb.attempts} tentativo/i.<br><small>${sb.output}</small></div>`;
+      } else {
+        badgeHtml = `<span class="badge badge-amber">⚠ Sandbox fallito</span>`;
+        alertHtml = `<div class="alert alert-warn">La verifica sandbox non ha avuto successo dopo ${sb.attempts} tentativi. Verifica manualmente il codice.</div>`;
+      }
+    }
+
+    el('sandbox-badge').innerHTML = badgeHtml;
+    el('sandbox-alert').innerHTML = alertHtml;
+    el('code-output').textContent = code;
+
+    el('panel-output').style.display = 'block';
+    el('panel-output').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    alert('Errore generazione: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>✦</span> Genera codice';
+  }
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(el('code-output').textContent);
+}
+
+// ── Graph page ────────────────────────────────────────────────────────────────
+
+async function loadGraphPage() {
+  try {
+    const [status, data] = await Promise.all([
+      api('GET', '/status'),
+      api('GET', '/graph/nodes?limit=200')
+    ]);
+
+    el('graph-stats').innerHTML = `
+      <div class="stat"><div class="stat-val">${status.graph_nodes}</div><div class="stat-label">Nodi totali</div></div>
+      <div class="stat"><div class="stat-val">${status.vocabulary_terms}</div><div class="stat-label">Termini vocabolario</div></div>
+    `;
+
+    el('graph-tbody').innerHTML = data.nodes.map(n => `
+      <tr style="cursor:pointer" onclick="showNodeDetail('${n.id}')">
+        <td><span style="font-family:var(--mono);color:var(--accent)">${n.label}</span></td>
+        <td><span class="badge badge-gray">${n.type}</span></td>
+        <td><span style="color:${fieldColor(n.field)};font-size:11px">● </span>${n.field}</td>
+        <td><span style="font-family:var(--mono)">${n.prototypicality.toFixed(2)}</span></td>
+        <td>${n.episodic_links}</td>
+        <td style="color:var(--text3);font-size:11px">${n.hierarchy.join(' › ')}</td>
+      </tr>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function showNodeDetail(nodeId) {
+  try {
+    const data = await api('GET', `/graph/node/${nodeId}`);
+    el('node-detail-title').textContent = data.stable.label + ' — dettaglio';
+    el('node-stable-out').textContent = JSON.stringify(data.stable, null, 2);
+    el('node-episodic-out').textContent = data.episodic.links.length
+      ? JSON.stringify(data.episodic, null, 2)
+      : '(nessun link episodico)';
+    el('panel-node-detail').style.display = 'block';
+    el('panel-node-detail').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) { console.error(e); }
+}
+
+async function pruneEpisodic() {
+  if (!confirm('Potare i link episodici con use_count < 2?')) return;
+  const data = await api('POST', '/graph/episodic/prune', { min_use_count: 2 });
+  alert(`Potatura completata: ${data.pruned_links} link rimossi.`);
+  loadGraphPage();
+}
+
+// ── Config page ───────────────────────────────────────────────────────────────
+
+async function loadConfig() {
+  try {
+    const c = await api('GET', '/config');
+    el('cfg-mode').value = c.llm.mode;
+    el('cfg-model').value = c.llm.model;
+    el('cfg-url').value = c.llm.url;
+    el('cfg-key').value = c.llm.api_key;
+    el('cfg-tokens').value = c.llm.max_tokens;
+    el('cfg-temp').value = c.llm.temperature;
+    el('cfg-depth').value = c.fetch.max_depth;
+    el('cfg-ragnodes').value = c.fetch.max_rag_nodes;
+    el('cfg-attempts').value = c.sandbox.max_attempts;
+    el('cfg-timeout').value = c.sandbox.timeout;
+    el('cfg-sandlang').value = c.sandbox.language;
+  } catch(e) { console.error(e); }
+}
+
+async function saveConfig() {
+  const config = {
+    llm: {
+      mode: el('cfg-mode').value,
+      model: el('cfg-model').value,
+      url: el('cfg-url').value,
+      api_key: el('cfg-key').value,
+      max_tokens: parseInt(el('cfg-tokens').value),
+      temperature: parseFloat(el('cfg-temp').value)
+    },
+    fetch: {
+      max_depth: parseInt(el('cfg-depth').value),
+      max_rag_nodes: parseInt(el('cfg-ragnodes').value)
+    },
+    sandbox: {
+      enabled: true,
+      timeout: parseInt(el('cfg-timeout').value),
+      max_attempts: parseInt(el('cfg-attempts').value),
+      language: el('cfg-sandlang').value
+    }
+  };
+  try {
+    await api('POST', '/config', { config });
+    showAlert('config-alert', '✓ Configurazione salvata.', 'success');
+    checkStatus();
+  } catch(e) {
+    showAlert('config-alert', 'Errore: ' + e.message, 'error');
+  }
+}
+
+// ── GitHub import ─────────────────────────────────────────────────────────────
+
+async function runGithubBuild() {
+  const owner = el('gh-owner').value.trim();
+  const repo  = el('gh-repo').value.trim();
+  if (!owner || !repo) { showAlert('gh-alert', 'Owner e repo sono obbligatori.', 'warn'); return; }
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analisi in corso...';
+  showAlert('gh-alert', 'Recupero albero del repository e analisi file... (può richiedere qualche minuto)', 'info');
+  el('panel-gh-preview').style.display = 'none';
+
+  try {
+    const body = {
+      owner, repo,
+      ref: el('gh-ref').value.trim(),
+      path_filter: el('gh-path').value.trim(),
+      token: el('gh-token').value.trim(),
+      max_files: parseInt(el('gh-maxfiles').value)
+    };
+    const data = await api('POST', '/graph/build/github', body);
+
+    el('gh-alert').innerHTML = '';
+
+    if (data.status === 'empty') {
+      showAlert('gh-alert', 'Nessun nodo estratto. Verifica owner, repo e filtro percorso.', 'warn');
+      return;
+    }
+
+    // Stats
+    const s = data.stats;
+    el('gh-stats').innerHTML = `
+      <div class="stat"><div class="stat-val">${s.files_scanned}</div><div class="stat-label">File analizzati</div></div>
+      <div class="stat"><div class="stat-val">${s.entities_found}</div><div class="stat-label">Entità trovate</div></div>
+      <div class="stat"><div class="stat-val">${data.total_nodes}</div><div class="stat-label">Nodi pronti</div></div>
+      <div class="stat"><div class="stat-val">${s.files_skipped}</div><div class="stat-label">File saltati</div></div>
+    `;
+    el('gh-preview-subtitle').textContent = `${data.total_nodes} nodi in staging — anteprima dei primi 50`;
+
+    // Errori
+    if (data.errors && data.errors.length) {
+      el('gh-errors-block').style.display = 'block';
+      el('gh-errors-text').textContent = `⚠ ${data.errors.length} errori: ` + data.errors.slice(0,3).join(' | ');
+    } else {
+      el('gh-errors-block').style.display = 'none';
+    }
+
+    // Tabella preview
+    el('gh-preview-tbody').innerHTML = data.preview.map(n => `
+      <tr>
+        <td><span style="font-family:var(--mono);color:var(--accent)">${n.label}</span></td>
+        <td><span class="badge badge-gray">${n.type}</span></td>
+        <td><span style="color:${fieldColor(n.field)};font-size:11px">● </span>${n.field}</td>
+        <td><span style="font-family:var(--mono)">${n.prototypicality.toFixed(2)}</span></td>
+        <td style="color:var(--text3);font-size:11px">${(n.hierarchy || []).join(' › ')}</td>
+      </tr>
+    `).join('');
+
+    el('panel-gh-preview').style.display = 'block';
+    el('panel-gh-preview').scrollIntoView({ behavior: 'smooth' });
+
+  } catch(e) {
+    showAlert('gh-alert', 'Errore: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>⬇</span> Analizza repository';
+  }
+}
+
+async function commitStaged() {
+  if (!confirm('Importare i nodi in staging nel grafo? I nodi già esistenti saranno preservati.')) return;
+  try {
+    const data = await api('POST', '/graph/build/commit', { confirm: true, overwrite: false });
+    showAlert('gh-commit-alert',
+      `✓ ${data.merge_stats.added} nodi aggiunti · ${data.merge_stats.skipped} già presenti · ${data.total_nodes} nodi totali nel grafo.`,
+      'success');
+    el('panel-gh-preview').style.display = 'none';
+    checkStatus();
+  } catch(e) {
+    showAlert('gh-commit-alert', 'Errore: ' + e.message, 'error');
+  }
+}
+
+async function clearStaged() {
+  try {
+    await api('DELETE', '/graph/build/staging');
+    el('panel-gh-preview').style.display = 'none';
+    showAlert('gh-alert', 'Staging cancellato.', 'info');
+  } catch(e) { console.error(e); }
+}
+
+async function checkStaging() {
+  try {
+    const data = await api('GET', '/graph/build/staging');
+    if (data.status === 'empty') {
+      showAlert('gh-alert', 'Nessun dato in staging.', 'info');
+    } else {
+      showAlert('gh-alert', `${data.count} nodi in staging pronti per il commit.`, 'success');
+      el('panel-gh-preview').style.display = 'block';
+    }
+  } catch(e) { showAlert('gh-alert', 'Errore: ' + e.message, 'error'); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+checkStatus();
+setInterval(checkStatus, 15000);
+</script>
+</body>
+</html>
